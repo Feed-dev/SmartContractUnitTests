@@ -32,3 +32,45 @@ describe("Mapping Contract", function () {
     assert.equal(currentState.toString(), expectedState);
   });
 });
+
+describe("NestedMapping Contract", function () {
+  async function deployNestedMappingFixture() {
+    const nestedMappingFactory = await ethers.getContractFactory(
+      "NestedMapping"
+    );
+    const [owner] = await ethers.getSigners();
+    const nestedMapping = await nestedMappingFactory.deploy();
+    await nestedMapping.deployed();
+    return { nestedMappingFactory, nestedMapping, owner };
+  }
+
+  it("should get the default value for an uninitialized inner mapping", async function () {
+    const { nestedMapping, owner } = await loadFixture(
+      deployNestedMappingFixture
+    );
+    const currentState = await nestedMapping.get(owner.address, 0);
+    const expectedState = false;
+    assert.equal(currentState, expectedState);
+  });
+
+  it("should set and get the value in an inner mapping", async function () {
+    const { nestedMapping, owner } = await loadFixture(
+      deployNestedMappingFixture
+    );
+    await nestedMapping.set(owner.address, 0, true);
+    const currentState = await nestedMapping.get(owner.address, 0);
+    const expectedState = true;
+    assert.equal(currentState, expectedState);
+  });
+
+  it("should remove the value in an inner mapping", async function () {
+    const { nestedMapping, owner } = await loadFixture(
+      deployNestedMappingFixture
+    );
+    await nestedMapping.set(owner.address, 0, true);
+    await nestedMapping.remove(owner.address, 0);
+    const currentState = await nestedMapping.get(owner.address, 0);
+    const expectedState = false;
+    assert.equal(currentState, expectedState);
+  });
+});
