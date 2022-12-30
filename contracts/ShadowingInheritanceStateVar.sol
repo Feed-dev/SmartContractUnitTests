@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-contract A {
-    string public name = "Contract A";
+contract G {
+    string public name = "Contract G";
 
     function getName() public view returns (string memory) {
         return name;
@@ -10,16 +10,12 @@ contract A {
 }
 
 // Shadowing is disallowed in Solidity 0.6
-// This will not compile
-// contract B is A {
-//     string public name = "Contract B";
-// }
 
-contract C is A {
+contract H is G {
     // This is the correct way to override inherited state variables.
     constructor() {
-        name = "Contract C";
+        name = "Contract H";
     }
 
-    // C.getName returns "Contract C"
+    // H.getName returns "Contract H"
 }
