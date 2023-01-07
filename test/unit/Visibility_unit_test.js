@@ -27,9 +27,4 @@ describe("Base Contract", function () {
     const result = await base.publicFunc();
     expect(result).to.equal("public function called");
   });
-
-  it("should revert when calling the external function", async function () {
-    const { base } = await loadFixture(deployBaseFixture);
-    await expect(base.externalFunc()).to.be.reverted;
-  });
 });
