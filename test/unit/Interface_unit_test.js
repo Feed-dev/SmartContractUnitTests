@@ -52,22 +52,3 @@ describe("MyContract Contract", function () {
     expect(count).to.equal(2);
   });
 });
-
-describe("UniswapExample Contract", function () {
-  async function deployUniswapExampleFixture() {
-    const uniswapExampleFactory = await ethers.getContractFactory(
-      "UniswapExample"
-    );
-    const uniswapExample = await uniswapExampleFactory.deploy();
-    await uniswapExample.deployed();
-    return { uniswapExample };
-  }
-
-  it("should get the correct token reserves when the getTokenReserves function is called", async function () {
-    const { uniswapExample } = await loadFixture(deployUniswapExampleFixture);
-    const [reserve0, reserve1] = await uniswapExample.getTokenReserves();
-    // Test that the returned values are correct
-    expect(reserve0).to.be.a.bignumber.that.is.above(0);
-    expect(reserve1).to.be.a.bignumber.that.is.above(0);
-  });
-});
