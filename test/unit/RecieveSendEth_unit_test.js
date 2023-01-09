@@ -2,40 +2,36 @@ const { loadFixture } = require("@nomicfoundation/hardhat-network-helpers");
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe("ReceiveEther Contract", function () {
-  let receiveEther, signer;
+describe("SendEther Contract", function () {
+  async function deploySendEtherFixture() {
+    const sendEtherFactory = await ethers.getContractFactory("SendEther");
+    const [sender, recipient] = await ethers.getSigners();
+    const sendEther = await sendEtherFactory.deploy();
+    await sendEther.deployed();
+    return { sendEtherFactory, sendEther, sender, recipient };
+  }
 
-  beforeEach(async function () {
-    // Load a fixture that deploys an instance of the ReceiveEther contract
-    const fixture = await loadFixture(async () => {
-      const receiveEtherFactory = await ethers.getContractFactory(
-        "ReceiveEther"
-      );
-      receiveEther = await receiveEtherFactory.deploy();
-      await receiveEther.deployed();
-    });
-    // Get the signer to send Ether to the contract
-    signer = fixture.signers[0];
+  it("should send Ether via transfer()", async function () {
+    const { sendEther, recipient } = await loadFixture(deploySendEtherFixture);
+    const initialBalance = await recipient.getBalance();
+    await sendEther.sendViaTransfer(recipient.address);
+    const finalBalance = await recipient.getBalance();
+    expect(finalBalance.sub(initialBalance)).to.equal(1000000000000000000);
   });
 
-  it("should receive Ether through the receive function", async function () {
-    // Send 1 Ether to the contract through the receive function
-    await receiveEther.receive({ value: ethers.utils.parseEther("1") });
-    // Assert that the contract's balance is 1 Ether
-    expect(await receiveEther.getBalance()).to.equal(
-      ethers.utils.parseEther("1")
-    );
+  it("should send Ether via send()", async function () {
+    const { sendEther, recipient } = await loadFixture(deploySendEtherFixture);
+    const initialBalance = await recipient.getBalance();
+    await sendEther.sendViaSend(recipient.address);
+    const finalBalance = await recipient.getBalance();
+    expect(finalBalance.sub(initialBalance)).to.equal(1000000000000000000);
   });
 
-  it("should receive Ether through the fallback function", async function () {
-    // Send 1 Ether to the contract through the fallback function
-    await signer.sendTransaction({
-      to: receiveEther.address,
-      value: ethers.utils.parseEther("1"),
-    });
-    // Assert that the contract's balance is 1 Ether
-    expect(await receiveEther.getBalance()).to.equal(
-      ethers.utils.parseEther("1")
-    );
-  });
+  // it("should send Ether via call()", async function () {
+  //   const { sendEther, recipient } = await loadFixture(deploySendEtherFixture);
+  //   const initialBalance = await recipient.getBalance();
+  //   await sendEther.sendViaCall(recipient.address);
+  //   const finalBalance = await recipient.getBalance();
+  //   expect(finalBalance.sub(initialBalance)).to.equal(1000000000000000000);
+  // });
 });
