@@ -18,4 +18,17 @@ describe("Payable Contract", function () {
     const { payable } = await loadFixture(deployPayableFixture);
     expect(await payable.owner()).to.equal(owner);
   });
+  it("should deposit ether correctly", async function () {
+    const { payable } = await loadFixture(deployPayableFixture);
+    const initialBalance = await ethers.provider.getBalance(payable.address);
+    await payable.deposit({ value: ethers.utils.parseEther("1") });
+    const finalBalance = await ethers.provider.getBalance(payable.address);
+    expect(finalBalance).to.be.above(initialBalance);
+  });
+
+  it("should throw an error when calling notPayable function with ether", async function () {
+    const { payable } = await loadFixture(deployPayableFixture);
+    await expect(payable.notPayable({ value: ethers.utils.parseEther("1") })).to
+      .be.rejected;
+  });
 });
