@@ -31,4 +31,22 @@ describe("Payable Contract", function () {
     await expect(payable.notPayable({ value: ethers.utils.parseEther("1") })).to
       .be.rejected;
   });
+  it("should withdraw ether correctly", async function () {
+    const { payable } = await loadFixture(deployPayableFixture);
+    await payable.deposit({ value: ethers.utils.parseEther("1") });
+    const initialBalance = await ethers.provider.getBalance(owner);
+    await payable.withdraw();
+    const finalBalance = await ethers.provider.getBalance(owner);
+    expect(finalBalance).to.be.above(initialBalance);
+  });
+
+  it("should transfer ether correctly", async function () {
+    const { payable } = await loadFixture(deployPayableFixture);
+    const recipient = ethers.Wallet.createRandom().address;
+    await payable.deposit({ value: ethers.utils.parseEther("1") });
+    const initialBalance = await ethers.provider.getBalance(recipient);
+    await payable.transfer(recipient, ethers.utils.parseEther("1"));
+    const finalBalance = await ethers.provider.getBalance(recipient);
+    expect(finalBalance).to.be.above(initialBalance);
+  });
 });
